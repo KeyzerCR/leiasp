@@ -4,7 +4,7 @@
     gui.className = 'gui-container';
     gui.innerHTML = `
         <div class="gui-header">
-            <h2 class="gui-header-title">LEia SP HACK</h2>
+            <h2 class="gui-header-title">Leia SP HACK</h2>
             <div>
                 <button class="gui-header-btn minimize-btn">-</button>
                 <button class="gui-header-btn close-btn">✕</button>

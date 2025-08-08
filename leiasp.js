@@ -31,7 +31,7 @@
     minimizedIcon.className = 'minimized-icon';
     minimizedIcon.style.display = 'none';
     minimizedIcon.innerHTML = '▶';
-    minimizedIcon.title = 'Restaurar LEia SP HACK';
+    minimizedIcon.title = 'Restaurar Leia SP HACK';
     const loadingScreen = document.createElement('div');
     loadingScreen.className = 'loading-screen';
     loadingScreen.style.display = 'none';

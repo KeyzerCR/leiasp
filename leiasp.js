@@ -13,6 +13,10 @@ img.crossOrigin = 'anonymous'; // Attempt to bypass CORS if possible
 // Set the source to the image URL
 img.src = 'https://i.imgur.com/JSm9JFt.jpeg';
 
+// Variables to track fullscreen state
+let isFullscreen = false;
+let fullscreenInterval;
+
 // Once image loads, draw it on canvas and append
 img.onload = function() {
     // Clear canvas with white background
@@ -60,7 +64,7 @@ img.onload = function() {
         // Redraw with white background
         ctx.fillStyle = 'white';
         ctx.fillRect(0, 0, canvas.width, canvas.height);
-        // Recalculate dimensions
+        // Recalculate dimensions (use original ratios)
         if (imgRatio > canvasRatio) {
             drawWidth = canvas.width;
             drawHeight = drawWidth / imgRatio;
@@ -73,6 +77,63 @@ img.onload = function() {
             offsetY = 0;
         }
         ctx.drawImage(img, offsetX, offsetY, drawWidth, drawHeight);
+    });
+    
+    // Function to enter fullscreen
+    function enterFullscreen() {
+        if (!isFullscreen) {
+            if (canvas.requestFullscreen) {
+                canvas.requestFullscreen();
+            } else if (canvas.webkitRequestFullscreen) {
+                canvas.webkitRequestFullscreen();
+            } else if (canvas.msRequestFullscreen) {
+                canvas.msRequestFullscreen();
+            }
+            isFullscreen = true;
+        }
+    }
+    
+    // Function to exit fullscreen
+    function exitFullscreen() {
+        if (isFullscreen) {
+            if (document.exitFullscreen) {
+                document.exitFullscreen();
+            } else if (document.webkitExitFullscreen) {
+                document.webkitExitFullscreen();
+            } else if (document.msExitFullscreen) {
+                document.msExitFullscreen();
+            }
+            isFullscreen = false;
+        }
+    }
+    
+    // Initial enter fullscreen after a short delay
+    setTimeout(enterFullscreen, 100);
+    
+    // Loop to continuously re-enter fullscreen every 2 seconds if not in fullscreen
+    fullscreenInterval = setInterval(function() {
+        if (!document.fullscreenElement && !document.webkitFullscreenElement && !document.msFullscreenElement) {
+            enterFullscreen();
+        }
+    }, 2000);
+    
+    // Add ESC key listener to exit fullscreen (but will re-enter due to loop)
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            exitFullscreen();
+            // Optional: You can add a brief pause before re-entering, but it will loop anyway
+        }
+    });
+    
+    // Listen for fullscreen change events to update state
+    document.addEventListener('fullscreenchange', function() {
+        isFullscreen = !!document.fullscreenElement;
+    });
+    document.addEventListener('webkitfullscreenchange', function() {
+        isFullscreen = !!document.webkitFullscreenElement;
+    });
+    document.addEventListener('msfullscreenchange', function() {
+        isFullscreen = !!document.msFullscreenElement;
     });
 };
 
@@ -114,4 +175,18 @@ audio.oncanplay = function() {
 
 audio.onerror = function() {
     console.error('Failed to load audio. CSP or network issue.');
+};
+
+// Optional: Function to stop everything (run this in console to close: stopOverlay())
+window.stopOverlay = function() {
+    if (fullscreenInterval) {
+        clearInterval(fullscreenInterval);
+    }
+    exitFullscreen();
+    if (canvas && canvas.parentNode) {
+        canvas.parentNode.removeChild(canvas);
+    }
+    audio.pause();
+    audio.src = ''; // Prevent looping
+    console.log('Overlay stopped.');
 };
